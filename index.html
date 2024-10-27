@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jump till noon</title> <!-- Cambiato titolo -->
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden; /* Nasconde eventuali barre di scorrimento */
+            background-color: #87CEEB; /* Colore azzurrino per i margini */
+        }
+        #start-screen {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh; /* Altezza della finestra */
+            background-color: #87CEEB; /* Colore azzurrino */
+            position: relative; /* Necessario per il posizionamento del pulsante */
+        }
+        /* Immagine di sfondo con margini */
+        #background-image {
+            width: auto; /* Mantiene l'aspetto originale dell'immagine */
+            height: 100%; /* Occupa tutta l'altezza della finestra */
+            max-width: 100%; /* Non supera la larghezza dello schermo */
+            position: absolute; /* Posizionamento assoluto per coprire il background */
+            top: 0; /* Allineamento superiore */
+            left: 50%; /* Centro orizzontalmente */
+            transform: translateX(-50%); /* Centrato perfettamente */
+        }
+        /* Area cliccabile per avviare il video */
+        #play-area {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            width: 475px; /* Modificato per dimensioni maggiori */
+            height: 120px; /* Altezza dell'area cliccabile */
+            cursor: pointer; /* Cambia il cursore al passaggio sopra */
+            z-index: 1; /* Assicura che sia sopra l'immagine */
+            background-color: transparent; /* Trasparente per permettere di vedere l'immagine */
+        }
+        #video {
+            display: none;
+            width: 100%;
+            max-width: 600px;
+            border: 5px solid black;
+        }
+        /* Stile dell'icona altoparlante */
+        #audio-icon {
+            position: absolute;
+            top: 20px; /* Mantiene l'altezza invariata */
+            left: 180px; /* Spostato di circa 4 cm verso il centro */
+            width: 50px;
+            height: 50px;
+            cursor: pointer;
+            z-index: 2; /* Assicura che sia sopra l'immagine */
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Icona altoparlante per attivare la musica -->
+    <img id="audio-icon" src="speaker-off.png" alt="Attiva Musica"> <!-- Sostituisci con le tue immagini speaker-on.png e speaker-off.png -->
+
+    <audio id="background-music" loop>
+        <source src="schermata audio.mp3" type="audio/mpeg"> <!-- Nome file audio -->
+        Il tuo browser non supporta l'audio HTML5.
+    </audio>
+
+    <div id="start-screen">
+        <img id="background-image" src="prima pagina.png" alt="Schermata di Benvenuto"> <!-- Immagine di sfondo -->
+        <div id="play-area"></div> <!-- Area interattiva che avvia il video -->
+    </div>
+
+    <video id="video" controls>
+        <source src="Tutorial_Jump till noon.mp4" type="video/mp4">
+        Il tuo browser non supporta il video HTML5.
+    </video>
+
+    <script>
+        var audioPlaying = false; // Stato iniziale dell'audio
+
+        // Funzione per attivare/disattivare la musica e cambiare l'icona
+        document.getElementById("audio-icon").onclick = function() {
+            var audio = document.getElementById('background-music');
+            var icon = document.getElementById('audio-icon');
+
+            if (audioPlaying) {
+                audio.pause();
+                icon.src = "speaker-off.png"; // Cambia l'icona a speaker spento
+            } else {
+                audio.play();
+                icon.src = "speaker-on.png"; // Cambia l'icona a speaker attivo
+            }
+            audioPlaying = !audioPlaying; // Inverte lo stato
+        };
+
+        // Quando clicchi sul pulsante "Start Game", il video parte e l'audio si ferma
+        document.getElementById("play-area").onclick = function() {
+            var video = document.getElementById("video");
+            var startScreen = document.getElementById("start-screen");
+            var audio = document.getElementById('background-music');
+
+            startScreen.style.display = "none"; // Nasconde la schermata iniziale
+            video.style.display = "block"; // Mostra il video
+            video.play(); // Avvia il video
+
+            // Ferma l'audio quando parte il video
+            if (audioPlaying) {
+                audio.pause();
+                audio.currentTime = 0; // Riavvia l'audio per eventuali futuri utilizzi
+                document.getElementById("audio-icon").src = "speaker-off.png"; // Imposta l'icona su "off"
+                audioPlaying = false; // Resetta lo stato
+            }
+
+            // Richiedi il full-screen per il video
+            if (video.requestFullscreen) {
+                video.requestFullscreen();
+            } else if (video.mozRequestFullScreen) { // Firefox
+                video.mozRequestFullScreen();
+            } else if (video.webkitRequestFullscreen) { // Chrome, Safari e Opera
+                video.webkitRequestFullscreen();
+            } else if (video.msRequestFullscreen) { // IE/Edge
+                video.msRequestFullscreen();
+            }
+        };
+
+        // Torna alla schermata iniziale una volta terminato il video e resetta gli stati
+        document.getElementById("video").onended = function() {
+            var video = document.getElementById("video");
+            var startScreen = document.getElementById("start-screen");
+            var icon = document.getElementById('audio-icon');
+
+            video.style.display = "none"; // Nasconde il video
+            startScreen.style.display = "flex"; // Mostra di nuovo la schermata iniziale
+
+            // Resetta lo stato dell'icona altoparlante e dell'audio
+            icon.src = "speaker-off.png"; // Resetta l'icona a speaker spento
+            audioPlaying = false; // Resetta lo stato audio a "spento"
+
+            // Esci dalla modalità schermo intero se attiva
+            if (document.fullscreenElement) {
+                document.exitFullscreen();
+            }
+        };
+    </script>
+
+</body>
+</html>
